@@ -1,6 +1,6 @@
 <!doctype html>
 
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>vatic.js A pure Javascript video annotation tool</title>
@@ -110,37 +110,92 @@
       .ui-corner-all {
         border-radius: 4px;
       }
+      .fileinput-button {
+            position: relative;
+            display: inline-block;
+        }
+
+      .fileinput-button input{
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            opacity: 0;
+            -ms-filter: 'alpha(opacity=0)';
+            font-size: 1px;
+        }
     </style>
   </head>
   <body>
-    <h1>vatic.js  Javascript的视频标注软件</h1>
+    <div class="jumbotron">
+          <h1>vatic.js  </h1>
+          <p>Javascript的视频标注软件</p>
+    </div>
 
     <ol>
       <li>
-        <p>选择视频文件 <input type="file" id="videoFile" accept="video/*" /></p>
-        <p>选择帧压缩包 <input type="file" id="zipFile" accept=".zip" /></p>
+        <p>上传视频
+        <span class="btn btn-primary fileinput-button">
+            <span>视频</span>
+            <input type="file" id="videoFile" accept="video/*" />
+        </span>
+        </p>
+        <br>
+        <p>上传视频的帧压缩包
+        <span class="btn btn-primary fileinput-button">
+        <span>选择帧压缩包</span>
+            <input type="file" id="zipFile" accept=".zip" />
+        </span>
+        </p>
+           
+     
+        
         <p class="output" id="videoDimensions"></p>
         <p class="output" id="extractionProgress"></p>
+        <br>
+        <hr/>
       </li>
       <li>
-        <p>载入XML 标注文件: <input type="file" id="xmlFile" accept=".xml" disabled="true" /></p>
+        
+        <p>载入XML 标注文件: 
+            <span id="xmlFile_t" class="btn btn-primary fileinput-button disabled">
+                <span>XML</span>
+                <input type="file" id="xmlFile" accept=".xml" disabled="true" />
+            </span> 
+          </p>
       </li>
       <li>
         <p>输入n以新建Bbox框</p>
         <div id="doodle">
-          <canvas id="canvas"></canvas>
+                <canvas id="canvas"></canvas>
         </div>
         <p><input type="button" id="play" value="播放" disabled="true" /><input type="button" id="pause" value="暂停" disabled="true" style="display: none;" /></p>
         <div id="slider"></div>
-        <p><label for="speed">Speed multiplier: </label><input type="text" id="speed" value="1.00" size="4" /></p>
+        <br>
+        <div class="input-group">
+            
+            <span class="input-group-addon">速度倍速:</span>
+           
+            <input type="text"  class="form-control" id="speed" value="1.00" size="4" aria-describedby="basic-addon3"/>
+
+        </div>
+
+            
+            
+        </div>
+
         <div id="objects"></div>
+        <hr/>
+        <br>
       </li>
       <li>
         <p><input type="button" id="generateXml" value="生成" disabled="true" />标注XML文件.</p>
       </li>
     </ol>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script type="text/javascript" src="dist/compatibility.js"></script>
     <script type="text/javascript" src="dist/jszip.js"></script>
     <script type="text/javascript" src="dist/StreamSaver.js"></script>
@@ -176,9 +231,10 @@
       let videoFile = document.querySelector('#videoFile');
       let zipFile = document.querySelector('#zipFile');
       let xmlFile = document.querySelector('#xmlFile');
+      let xmlFile_t = document.querySelector('#xmlFile_t');
       let videoDimensionsElement = document.querySelector('#videoDimensions');
       let extractionProgressElement = document.querySelector('#extractionProgress');
-      let downloadFramesButton = document.querySelector('#downloadFrames');
+      //let downloadFramesButton = document.querySelector('#downloadFrames');
       let playButton = document.querySelector('#play');
       let pauseButton = document.querySelector('#pause');
       let speedInput = document.querySelector('#speed');
@@ -367,7 +423,7 @@
       xmlFile.addEventListener('change', importXml, false);
       playButton.addEventListener('click', playClicked, false);
       pauseButton.addEventListener('click', pauseClicked, false);
-      downloadFramesButton.addEventListener('click', downloadFrames, false);
+      //downloadFramesButton.addEventListener('click', downloadFrames, false);
       generateXmlButton.addEventListener('click', generateXml, false);
 
       function playClicked() {
@@ -415,7 +471,8 @@
         videoFile.disabled = true;
         zipFile.disabled = true;
         xmlFile.disabled = true;
-        downloadFramesButton.disabled = true;
+        
+        //downloadFramesButton.disabled = true;
         generateXmlButton.disabled = true;
         clearAllAnnotatedObjects();
         slider.reset();
@@ -436,8 +493,8 @@
                 }
                 ctx.drawImage(img, 0, 0);
 
-                videoDimensionsElement.innerHTML = 'Video dimensions determined: ' + img.width + 'x' + img.height;
-                extractionProgressElement.innerHTML = (percentage * 100).toFixed(2) + ' % completed. ' + framesSoFar + ' frames extracted.';
+                videoDimensionsElement.innerHTML = '视频大小检测: ' + img.width + 'x' + img.height;
+                extractionProgressElement.innerHTML = (percentage * 100).toFixed(2) + ' % 完成. ' + framesSoFar + ' 帧被抓取.';
               });
             });
         } else {
@@ -445,13 +502,13 @@
         }
 
         promise.then((frames) => {
-          extractionProgressElement.innerHTML = 'Extraction completed. ' + frames.totalFrames() + ' frames captured.';
+          extractionProgressElement.innerHTML = '恢复完成. 一共有' + frames.totalFrames() + ' 帧.';
           if (frames.totalFrames() > 0) {
             frames.getFrame(0).then((blob) => {
               blobToImage(blob).then((img) => {
                 initializeCanvasDimensions(img);
                 ctx.drawImage(img, 0, 0);
-                videoDimensionsElement.innerHTML = 'Video dimensions determined: ' + img.width + 'x' + img.height;
+                videoDimensionsElement.innerHTML = '视频大小检测: ' + img.width + 'x' + img.height;
 
                 framesManager.set(frames);
                 slider.init(
@@ -462,8 +519,9 @@
                 player.ready();
 
                 xmlFile.disabled = false;
+                $("#xmlFile_t").removeClass("disabled");
                 playButton.disabled = false;
-                downloadFramesButton.disabled = false;
+                //downloadFramesButton.disabled = false;
                 generateXmlButton.disabled = false;
               });
             });
@@ -585,6 +643,8 @@
           return dom;
       }
 
+      
+      //添加标注对象控制
       function addAnnotatedObjectControls(annotatedObject) {
         let name = $('<input type="text" value="Name?" />');
         if (annotatedObject.name) {
