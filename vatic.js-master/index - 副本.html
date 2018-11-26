@@ -123,15 +123,40 @@
             -ms-filter: 'alpha(opacity=0)';
             font-size: 1px;
         }
+        .bs-example{
+	          position:relative;
+	          padding:45px 15px 15px;
+	          margin:0 -15px 15px;
+	          border-color:#e5e5e5 #eee #eee;
+	          border-style:solid;
+	          border-width:1px 0;
+	          -webkit-box-shadow:inset 0 3px 6px rgba(0,0,0,.05);
+	          box-shadow:inset 0 3px 6px rgba(0,0,0,.05);
+	          margin-bottom: 30px;
+            width: 100px;
+        }
+
+        .bs-example:after{
+        	position:absolute;
+        	top:15px;
+        	left:15px;
+        	font-size:12px;
+        	font-weight:700;
+        	color:#959595;
+        	text-transform:uppercase;
+        	letter-spacing:1px;
+        	content:"视频倍率"
+        }
     </style>
   </head>
   <body>
-    <div class="jumbotron">
-          <h1>vatic.js  </h1>
-          <p>Javascript的视频标注软件</p>
-    </div>
+    
+        <div class="jumbotron">
+              <h1>vatic.js  </h1>
+              <p>Javascript的视频标注软件</p>
+        </div>
 
-    <ol>
+    <ul>
       <li>
         <p>上传视频
         <span class="btn btn-primary fileinput-button">
@@ -141,10 +166,10 @@
         </p>
         <br>
         <p>上传视频的帧压缩包
-        <span class="btn btn-primary fileinput-button">
-        <span>选择帧压缩包</span>
-            <input type="file" id="zipFile" accept=".zip" />
-        </span>
+            <span class="btn btn-primary fileinput-button">
+                <span>选择帧压缩包</span>
+                <input type="file" id="zipFile" accept=".zip" />
+            </span>
         </p>
            
      
@@ -168,15 +193,17 @@
         <div id="doodle">
                 <canvas id="canvas"></canvas>
         </div>
-        <p><input type="button" id="play" value="播放" disabled="true" /><input type="button" id="pause" value="暂停" disabled="true" style="display: none;" /></p>
+        <br>
+        <p><input class="btn btn-primary" type="button" id="play" value="播放" disabled="true" /><input class="btn btn-primary" type="button" id="pause" value="暂停" disabled="true" style="display: none;" /></p>
+        <br>
         <div id="slider"></div>
         <br>
-        <div class="input-group">
-            
-            <span class="input-group-addon">速度倍速:</span>
-           
-            <input type="text"  class="form-control" id="speed" value="1.00" size="4" aria-describedby="basic-addon3"/>
-
+        <div class="bs-example">
+          <!-- <div class="row">
+            <div class="col-xs-5"> -->
+                <input type="text"  class="form-control" id="speed" value="1.00" size="4" aria-describedby="basic-addon3"/>
+            <!-- </div>
+          </div>  -->
         </div>
 
             
@@ -188,10 +215,14 @@
         <br>
       </li>
       <li>
-        <p><input type="button" id="generateXml" value="生成" disabled="true" />标注XML文件.</p>
+        <p><input type="button" class="btn btn-success" id="generateXml" value="生成" disabled="true" />标注XML文件.</p>
       </li>
-    </ol>
+    </ul>
 
+    <script type="text/javascript" src="dist/jquery-1.12.4.js"></script>
+    <script type="text/javascript" src="dist/jquery-ui.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+	  <script src="https://cdn.bootcss.com/bootstrap-select/1.12.4/js/i18n/defaults-zh_CN.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -203,8 +234,6 @@
     <script type="text/javascript" src="dist/jsfeat.js"></script>
     <script type="text/javascript" src="dist/nudged.js"></script>
     <script type="text/javascript" src="dist/pouchdb.min.js"></script>
-    <script type="text/javascript" src="dist/jquery-1.12.4.js"></script>
-    <script type="text/javascript" src="dist/jquery-ui.js"></script>
     <script type="text/javascript" src="vatic.js"></script>
     <script type="text/javascript">
       "use strict";
@@ -369,7 +398,7 @@
                   annotatedObject.dom.style.height = annotatedFrame.bbox.height + 'px';
                   annotatedObject.dom.style.left = annotatedFrame.bbox.x + 'px';
                   annotatedObject.dom.style.top = annotatedFrame.bbox.y + 'px';
-                  annotatedObject.visible.prop('checked', true);
+                  // annotatedObject.visible.prop('checked', true);
                 } else {
                   annotatedObject.dom.style.display = 'none';
                   annotatedObject.visible.prop('checked', false);
@@ -646,7 +675,7 @@
       
       //添加标注对象控制
       function addAnnotatedObjectControls(annotatedObject) {
-        let name = $('<input type="text" value="Name?" />');
+        let name = $('<input type="text" value="Name" />');
         if (annotatedObject.name) {
           name.val(annotatedObject.name);
         }
@@ -654,40 +683,51 @@
           annotatedObject.name = this.value;
         });
 
-        let id = $('<input type="text" value="ID?" />');
+        let id = $('<input type="text" value="ID" />');
         if (annotatedObject.id) {
           id.val(annotatedObject.id);
         }
         id.on('change keyup paste mouseup', function() {
           annotatedObject.id = this.value;
         });
-
-        let visibleLabel = $('<label>');
-        let visible = $('<input type="checkbox" checked="checked" />');
-        annotatedObject.visible = visible;
-        visible.change(function() {
+        // <div class="btn-group">
+        //     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Primary <span class="caret"></span></button>
+        //       <ul class="dropdown-menu">
+        //         <li><a href="#">Action</a></li>
+        //         <li><a href="#">Another action</a></li>
+        //         <li><a href="#">Something else here</a></li>
+        //         <li role="separator" class="divider"></li>
+        //         <li><a href="#">Separated link</a></li>
+        //       </ul>
+        //   </div>
+        let dataLabels =$() 
+        
+        // let visibleLabel = $('<label>');
+        // let visible = $('<input type="checkbox" checked="checked" />');
+        // annotatedObject.visible = visible;
+        // visible.change(function() {
           let bbox;
-          if (this.checked) {
-            annotatedObject.dom.style.display = 'block';
+          // if (this.checked) {
+            // annotatedObject.dom.style.display = 'block';
             let jquery = $(annotatedObject.dom);
             let position = jquery.position();
             bbox = new BoundingBox(Math.round(position.left), Math.round(position.top), Math.round(jquery.width()), Math.round(jquery.height()));
-          } else {
-            annotatedObject.dom.style.display = 'none';
-            bbox = null;
-          }
+          // } else {
+            // annotatedObject.dom.style.display = 'none';
+            // bbox = null;
+          // }
           annotatedObject.add(new AnnotatedFrame(player.currentFrame, bbox, true));
-        });
-        visibleLabel.append(visible);
-        visibleLabel.append('Is visible?');
+        // });
+        // visibleLabel.append(visible);
+        // visibleLabel.append('Is visible?');
 
-        let hideLabel = $('<label>');
-        let hide = $('<input type="checkbox" />');
-        hide.change(function() {
-          annotatedObject.hideOthers = this.checked;
-        });
-        hideLabel.append(hide);
-        hideLabel.append('Hide others?');
+        // let hideLabel = $('<label>');
+        // let hide = $('<input type="checkbox" />');
+        // hide.change(function() {
+        //   annotatedObject.hideOthers = this.checked;
+        // });
+        // hideLabel.append(hide);
+        // hideLabel.append('Hide others?');
 
         let del = $('<input type="button" value="Delete" />');
         del.click(function() {
@@ -709,10 +749,22 @@
         div.append($('<br />'));
         div.append(id);
         div.append($('<br />'));
-        div.append(visibleLabel);
-        div.append($('<br />'));
-        div.append(hideLabel);
-        div.append($('<br />'));
+        let temp_str = '<form action="/" method="get"><p><input type="checkbox" name="move1" value="异常行为1" />异常行为1</p><p><input type="checkbox" name="move2" value="异常行为2" /> 异常行为2</p><p><input type="checkbox" name="move2" value="异常行为3" /> 异常行为3</p><p><input type="checkbox" name="move2" value="异常行为4" /> 异常行为4</p><p><input type="checkbox" name="move2" value="异常行为5" /> 异常行为5</p><p><input type="checkbox" name="move2" value="异常行为6" /> 异常行为6</p><p><input type="checkbox" name="move2" value="异常行为7" /> 异常行为7</p><p><input type="checkbox" name="move2" value="异常行为8" /> 异常行为8</p><p><input type="checkbox" name="move2" value="异常行为9" /> 异常行为9</p><p><input type="checkbox" name="move2" value="异常行为10" /> 异常行为10</p><p><input type="checkbox" name="move2" value="异常行为11" /> 异常行为11</p><p><input type="checkbox" name="move2" value="异常行为12" /> 异常行为12</p></form>';
+        div.append($(temp_str));
+        // <form action="/" method="get">
+        //     <p><input type="checkbox" name="move1" value="异常行为1" />异常行为1</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为2" /> 异常行为2</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为3" /> 异常行为3</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为4" /> 异常行为4</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为5" /> 异常行为5</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为6" /> 异常行为6</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为7" /> 异常行为7</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为8" /> 异常行为8</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为9" /> 异常行为9</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为10" /> 异常行为10</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为11" /> 异常行为11</p>
+        //     <p><input type="checkbox" name="move2" value="异常行为12" /> 异常行为12</p>   
+        // </form>
         div.append(del);
 
         annotatedObject.controls = div;
