@@ -210,7 +210,7 @@
             
         </div>
 
-        <div id="objects"></div>
+        <div id="objects"><p><input type="button" value="提交" onclick="send()" /></p></div>
         <hr/>
         <br>
       </li>
@@ -700,7 +700,6 @@
         //         <li><a href="#">Separated link</a></li>
         //       </ul>
         //   </div>
-        let dataLabels =$() 
         
         // let visibleLabel = $('<label>');
         // let visible = $('<input type="checkbox" checked="checked" />');
@@ -738,8 +737,12 @@
             }
           }
         });
-
         let div = $('<div></div>');
+        let checkbox = $('<p><input type="checkbox"  value="异常行为1" />异常行为1</p><p><input type="checkbox"  value="异常行为2" /> 异常行为2</p><p><input type="checkbox"  value="异常行为3" /> 异常行为3</p><p><input type="checkbox"  value="异常行为4" /> 异常行为4</p><p><input type="checkbox"  value="异常行为5" /> 异常行为5</p><p><input type="checkbox"  value="异常行为6" /> 异常行为6</p><p><input type="checkbox"  value="异常行为7" /> 异常行为7</p><p><input type="checkbox"  value="异常行为8" /> 异常行为8</p><p><input type="checkbox"  value="异常行为9" /> 异常行为9</p><p><input type="checkbox"  value="异常行为10" /> 异常行为10</p><p><input type="checkbox"  value="异常行为11" /> 异常行为11</p><p><input type="checkbox"  value="异常行为12" /> 异常行为12</p>');
+        //读取xml增加框
+        for (let i = 0; i < annotatedObjectsTracker.annotatedObjects.length; i++) {
+          div.attr("id","bbox"+String(i));
+        }
         div.css({
           'border': '1px solid black',
           'display': 'inline-block',
@@ -749,8 +752,18 @@
         div.append($('<br />'));
         div.append(id);
         div.append($('<br />'));
-        let temp_str = '<form action="/" method="get"><p><input type="checkbox" name="move1" value="异常行为1" />异常行为1</p><p><input type="checkbox" name="move2" value="异常行为2" /> 异常行为2</p><p><input type="checkbox" name="move2" value="异常行为3" /> 异常行为3</p><p><input type="checkbox" name="move2" value="异常行为4" /> 异常行为4</p><p><input type="checkbox" name="move2" value="异常行为5" /> 异常行为5</p><p><input type="checkbox" name="move2" value="异常行为6" /> 异常行为6</p><p><input type="checkbox" name="move2" value="异常行为7" /> 异常行为7</p><p><input type="checkbox" name="move2" value="异常行为8" /> 异常行为8</p><p><input type="checkbox" name="move2" value="异常行为9" /> 异常行为9</p><p><input type="checkbox" name="move2" value="异常行为10" /> 异常行为10</p><p><input type="checkbox" name="move2" value="异常行为11" /> 异常行为11</p><p><input type="checkbox" name="move2" value="异常行为12" /> 异常行为12</p></form>';
-        div.append($(temp_str));
+        div.append(checkbox);
+        for(let i=0;i<12;i++){
+          //$('input[name="sno"]').attr('name','account');   
+          //$("checkbox > input").attr("name","move"+String(i));
+          //let tmp = checkbox.eq(i);
+          //x.attr("name","move"+String(i))
+          let input_t = checkbox.children('input');
+          input_t.eq(i).attr("name","move"+String(i));
+        }
+        
+        
+        
         // <form action="/" method="get">
         //     <p><input type="checkbox" name="move1" value="异常行为1" />异常行为1</p>
         //     <p><input type="checkbox" name="move2" value="异常行为2" /> 异常行为2</p>
@@ -766,11 +779,50 @@
         //     <p><input type="checkbox" name="move2" value="异常行为12" /> 异常行为12</p>   
         // </form>
         div.append(del);
+        
 
         annotatedObject.controls = div;
-
         $('#objects').append(div);
       }
+      function send(){
+          //这个方法取到了所有bbox的id会读取到所有的内容需要换一个name或者换一个方式
+          let div_boxs = document.getElementById('objects');
+          let num_boxs= div_boxs.children.length-1;
+          let key2 = new Array();
+          for(let i =0;i<num_boxs;i++){
+            let i_div = $("#bbox"+String(i));
+            //console.log(i_div[0]);
+          
+              for(let j=0;j<i_div[0].children.length;j++){
+                  let ischecked = $(i_div[0]).find("input[type='checkbox']");
+                  //console.log(ischecked);
+                  //console.log(ischecked.checked);
+                  for(let m=0;m<ischecked.length;m++){
+                    if(ischecked[m].checked){
+                      console.log(ischecked[m]+String(j)+"框"+String(i));
+                      key2.push(ischecked[m]);
+                    }
+                  }
+                  
+                    
+              }
+            
+            // console.log(key2.length);
+            // for(let x=0;x<key2.length;x++){
+            //     console.log(key2[x]);
+            // }
+           
+            
+          }
+        
+          
+          // let value = new Array();
+          // for(let i = 0; i < id.length; i++){
+          //   if(id[i].checked)
+          //   value.push(id[i].value);
+          // }
+          
+      } 
 
       function generateXml() {
         let xml = '<?xml version="1.0" encoding="utf-8"?>\n';
