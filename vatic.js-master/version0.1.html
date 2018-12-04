@@ -745,16 +745,24 @@
         div.append(id);
         div.append($('<br />'));
         div.append(checkbox);
-        for(let i=0;i<12;i++){
+        let input_t = checkbox.children('input');
+        for(let i=0;i<input_t.length;i++){
           //$('input[name="sno"]').attr('name','account');   
           //$("checkbox > input").attr("name","move"+String(i));
           //let tmp = checkbox.eq(i);
           //x.attr("name","move"+String(i))
-          let input_t = checkbox.children('input');
-          input_t.eq(i).attr("name","move"+String(i));
+          input_t.eq(i).attr("name", "move"+String(i));
+        
+          if (annotatedObject.labels) {      //   12.3 新增 wym
+              let labels = annotatedObject.labels;
+              for(let j = 0; j < labels.length; j ++) {
+                  if($(labels[j]).text() == input_t.eq(i).attr("name")){
+                      input_t.eq(j).attr("checked", "true");
+                      break;
+                  }
+              }
+          }
         }
-        
-        
         
         // <form action="/" method="get">
         //     <p><input type="checkbox" name="move1" value="异常行为1" />异常行为1</p>
@@ -910,10 +918,12 @@
             let object = $(objects[i]);
             let name = object.find('name').text();
             let id = object.find('id').text();
+            let labels = object.find('label');  //  12.3 新增 wym
 
             let annotatedObject = new AnnotatedObject();
             annotatedObject.name = name;
             annotatedObject.id = id;
+            annotatedObject.labels = labels;   //  12.3 新增 wym
             annotatedObject.dom = newBboxElement();
             annotatedObjectsTracker.annotatedObjects.push(annotatedObject);
 
