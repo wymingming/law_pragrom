@@ -1,160 +1,13 @@
-<!doctype html>
+<template>
+   
+    <div class="jumbotron">
+      <h1>vatic.js  </h1>
+      <p>Javascript的视频标注软件</p>
+    </div>
+</template>
+<template>
+  
 
-<html lang="zh-CN">
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>vatic.js A pure Javascript video annotation tool</title>
-    <style>
-      .output { font-family: monospace; font-weight: bold; }
-
-      #doodle {
-        position: relative;
-        width: 0px;
-        height: 0px;
-        z-index: 2;
-      }
-
-      #canvas {
-        z-index: 1;
-      }
-
-      .bbox {
-        border: 1px solid #FF0000;
-        position: absolute;
-        z-index: 3;
-      }
-
-      .handle, .ui-resizable-handle {
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        border: 1px solid rgba(255, 0, 0, .5);
-        background-color: rgba(255, 255, 0, .05);
-        position: absolute;
-      }
-
-      .center-drag {
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        cursor: move;
-      }
-
-      .ui-resizable-n {
-        left: 50%;
-        transform: translate(-50%, -50%);
-        cursor: n-resize;
-      }
-
-      .ui-resizable-s {
-        left: 50%;
-        bottom: 0%;
-        transform: translate(-50%, 50%);
-        cursor: s-resize;
-      }
-
-      .ui-resizable-w {
-        top: 50%;
-        transform: translate(-50%, -50%);
-        cursor: w-resize;
-      }
-
-      .ui-resizable-e {
-        right: 0%;
-        top: 50%;
-        transform: translate(50%, -50%);
-        cursor: e-resize;
-      }
-
-      .ui-slider {
-        position: relative;
-        text-align: left;
-        height: .8em;
-      }
-
-      .ui-slider-handle {
-        position: absolute;
-        z-index: 2;
-        width: 1.2em;
-        height: 1.2em;
-        cursor: default;
-        -ms-touch-action: none;
-        touch-action: none;
-        top: -.3em;
-        margin-left: -.6em;
-      }
-
-      .ui-widget.ui-widget-content {
-        border: 1px solid #d3d3d3;
-      }
-
-      .ui-state-default {
-        border: 1px solid #d3d3d3;
-        background-color: #e6e6e6;
-      }
-
-      .ui-state-hover, .ui-state-focus {
-        border: 1px solid #999999;
-        background-color: #dadada;
-      }
-
-      .ui-state-active {
-        border: 1px solid #aaaaaa;
-        background-color: #ffffff;
-      }
-
-      .ui-state-disabled {
-        opacity: .35;
-      }
-
-      .ui-corner-all {
-        border-radius: 4px;
-      }
-      .fileinput-button {
-            position: relative;
-            display: inline-block;
-        }
-
-      .fileinput-button input{
-            position: absolute;
-            right: 0px;
-            top: 0px;
-            opacity: 0;
-            -ms-filter: 'alpha(opacity=0)';
-            font-size: 1px;
-        }
-        .bs-example{
-	          position:relative;
-	          padding:45px 15px 15px;
-	          margin:0 -15px 15px;
-	          border-color:#e5e5e5 #eee #eee;
-	          border-style:solid;
-	          border-width:1px 0;
-	          -webkit-box-shadow:inset 0 3px 6px rgba(0,0,0,.05);
-	          box-shadow:inset 0 3px 6px rgba(0,0,0,.05);
-	          margin-bottom: 30px;
-            width: 100px;
-        }
-
-        .bs-example:after{
-        	position:absolute;
-        	top:15px;
-        	left:15px;
-        	font-size:12px;
-        	font-weight:700;
-        	color:#959595;
-        	text-transform:uppercase;
-        	letter-spacing:1px;
-        	content:"视频倍率"
-        }
-    </style>
-  </head>
-  <body>
-    
-        <div class="jumbotron">
-              <h1>vatic.js  </h1>
-              <p>Javascript的视频标注软件</p>
-        </div>
 
     <ul>
       <li>
@@ -218,15 +71,7 @@
         <p><input type="button" class="btn btn-success" id="generateXml" value="生成" disabled="true" />标注XML文件.</p>
       </li>
     </ul>
-
-    <script type="text/javascript" src="dist/jquery-1.12.4.js"></script>
-    <script type="text/javascript" src="dist/jquery-ui.js"></script>
-    <script src="https://cdn.bootcss.com/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
-	  <script src="https://cdn.bootcss.com/bootstrap-select/1.12.4/js/i18n/defaults-zh_CN.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</template>
     <script type="text/javascript" src="dist/compatibility.js"></script>
     <script type="text/javascript" src="dist/jszip.js"></script>
     <script type="text/javascript" src="dist/StreamSaver.js"></script>
@@ -745,16 +590,24 @@
         div.append(id);
         div.append($('<br />'));
         div.append(checkbox);
-        for(let i=0;i<12;i++){
+        let input_t = checkbox.children('input');
+        for(let i=0;i<input_t.length;i++){
           //$('input[name="sno"]').attr('name','account');   
           //$("checkbox > input").attr("name","move"+String(i));
           //let tmp = checkbox.eq(i);
           //x.attr("name","move"+String(i))
-          let input_t = checkbox.children('input');
-          input_t.eq(i).attr("name","move"+String(i));
+          input_t.eq(i).attr("name", "move"+String(i));
+        
+          if (annotatedObject.labels) {      //   12.3 新增 wym
+              let labels = annotatedObject.labels;
+              for(let j = 0; j < labels.length; j ++) {
+                  if($(labels[j]).text() == input_t.eq(i).attr("name")){
+                      input_t.eq(j).attr("checked", "true");
+                      break;
+                  }
+              }
+          }
         }
-        
-        
         
         // <form action="/" method="get">
         //     <p><input type="checkbox" name="move1" value="异常行为1" />异常行为1</p>
@@ -910,10 +763,12 @@
             let object = $(objects[i]);
             let name = object.find('name').text();
             let id = object.find('id').text();
+            let labels = object.find('label');  //  12.3 新增 wym
 
             let annotatedObject = new AnnotatedObject();
             annotatedObject.name = name;
             annotatedObject.id = id;
+            annotatedObject.labels = labels;   //  12.3 新增 wym
             annotatedObject.dom = newBboxElement();
             annotatedObjectsTracker.annotatedObjects.push(annotatedObject);
 
@@ -992,5 +847,32 @@
         }
       };
     </script>
-  </body>
-</html>
+<script>
+export default {
+  name: 'HelloWorld',
+  data () {
+    return {
+      //msg: 'Welcome to Your Vue.js App'
+      //数据绑定放在这儿
+    }
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h1, h2 {
+  font-weight: normal;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+</style>
