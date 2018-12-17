@@ -150,78 +150,8 @@
   </head>
   <body>
     <div id="app">
-       
-      <div class="jumbotron">
-        <h1>vatic.js  </h1>
-        <p>Javascript的视频标注软件</p>
-  </div>
-
-<ul>
-<li>
-  <p>上传视频
-  <span class="btn btn-primary fileinput-button">
-      <span>视频</span>
-      <input type="file" id="videoFile" accept="video/*" />
-  </span>
-  </p>
-  <br>
-  <p>上传视频的帧压缩包
-      <span class="btn btn-primary fileinput-button">
-          <span>选择帧压缩包</span>
-          <input type="file" id="zipFile" accept=".zip" />
-      </span>
-  </p>
-     
-
-  
-  <p class="output" id="videoDimensions"></p>
-  <p class="output" id="extractionProgress"></p>
-  <br>
-  <hr/>
-</li>
-<li>
-  
-  <p>载入XML 标注文件: 
-      <span id="xmlFile_t" class="btn btn-primary fileinput-button disabled">
-          <span>XML</span>
-          <input type="file" id="xmlFile" accept=".xml" disabled="true" />
-      </span> 
-    </p>
-</li>
-<li>
-  <p>输入n以新建Bbox框</p>
-  <div id="doodle">
-          <canvas id="canvas"></canvas>
-  </div>
-  <br>
-  <p><input class="btn btn-primary" type="button" id="play" value="播放" disabled="true" /><input class="btn btn-primary" type="button" id="pause" value="暂停" disabled="true" style="display: none;" /></p>
-  <br>
-  <div id="slider"></div>
-  <br>
-  <div class="bs-example">
-    <!-- <div class="row">
-      <div class="col-xs-5"> -->
-          <input type="text"  class="form-control" id="speed" value="1.00" size="4" aria-describedby="basic-addon3"/>
-      <!-- </div>
-    </div>  -->
-  </div>
-
-      
-      
-  </div>
-
-  <div id="objects"><p><input type="button" value="提交" onclick="send()" /></p></div>
-  <hr/>
-  <br>
-</li>
-<li>
-  <p><input type="button" class="btn btn-success" id="generateXml" value="生成" disabled="true" />标注XML文件.</p>
-</li>
-</ul>
+		</div>
 
 
-    </div>
-    <!-- built files will be auto injected -->
-    
   </body>
 </html>
