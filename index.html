@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>视频标注软件</title>
+    <style>
+      .output { font-family: monospace; font-weight: bold; }
+
+      #doodle {
+        position: relative;
+        width: 0px;
+        height: 0px;
+        z-index: 2;
+      }
+
+      #canvas {
+        z-index: 1;
+      }
+
+      .bbox {
+        border: 1px solid #FF0000;
+        position: absolute;
+        z-index: 3;
+      }
+
+      .handle, .ui-resizable-handle {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 0, 0, .5);
+        background-color: rgba(255, 255, 0, .05);
+        position: absolute;
+      }
+
+      .center-drag {
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        cursor: move;
+      }
+
+      .ui-resizable-n {
+        left: 50%;
+        transform: translate(-50%, -50%);
+        cursor: n-resize;
+      }
+
+      .ui-resizable-s {
+        left: 50%;
+        bottom: 0%;
+        transform: translate(-50%, 50%);
+        cursor: s-resize;
+      }
+
+      .ui-resizable-w {
+        top: 50%;
+        transform: translate(-50%, -50%);
+        cursor: w-resize;
+      }
+
+      .ui-resizable-e {
+        right: 0%;
+        top: 50%;
+        transform: translate(50%, -50%);
+        cursor: e-resize;
+      }
+
+      .ui-slider {
+        position: relative;
+        text-align: left;
+        height: .8em;
+      }
+
+      .ui-slider-handle {
+        position: absolute;
+        z-index: 2;
+        width: 1.2em;
+        height: 1.2em;
+        cursor: default;
+        -ms-touch-action: none;
+        touch-action: none;
+        top: -.3em;
+        margin-left: -.6em;
+      }
+
+      .ui-widget.ui-widget-content {
+        border: 1px solid #d3d3d3;
+      }
+
+      .ui-state-default {
+        border: 1px solid #d3d3d3;
+        background-color: #e6e6e6;
+      }
+
+      .ui-state-hover, .ui-state-focus {
+        border: 1px solid #999999;
+        background-color: #dadada;
+      }
+
+      .ui-state-active {
+        border: 1px solid #aaaaaa;
+        background-color: #ffffff;
+      }
+
+      .ui-state-disabled {
+        opacity: .35;
+      }
+
+      .ui-corner-all {
+        border-radius: 4px;
+      }
+      .fileinput-button {
+            position: relative;
+            display: inline-block;
+        }
+
+      .fileinput-button input{
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            opacity: 0;
+            -ms-filter: 'alpha(opacity=0)';
+            font-size: 1px;
+        }
+        .bs-example{
+	          position:relative;
+	          padding:45px 15px 15px;
+	          margin:0 -15px 15px;
+	          border-color:#e5e5e5 #eee #eee;
+	          border-style:solid;
+	          border-width:1px 0;
+	          -webkit-box-shadow:inset 0 3px 6px rgba(0,0,0,.05);
+	          box-shadow:inset 0 3px 6px rgba(0,0,0,.05);
+	          margin-bottom: 30px;
+            width: 100px;
+        }
+
+        .bs-example:after{
+        	position:absolute;
+        	top:15px;
+        	left:15px;
+        	font-size:12px;
+        	font-weight:700;
+        	color:#959595;
+        	text-transform:uppercase;
+        	letter-spacing:1px;
+        	content:"视频倍率"
+        }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+		</div>
+    <script type="text/javascript" src="static/dist/compatibility.js"></script>
+    <script type="text/javascript" src="static/dist/jszip.js"></script>
+    <script type="text/javascript" src="static/dist/jszip-utils.js"></script>
+    <script type="text/javascript" src="static/dist/StreamSaver.js"></script>
+    <script type="text/javascript" src="static/dist/polyfill.js"></script>
+    <script type="text/javascript" src="static/dist/jsfeat.js"></script>
+    <script type="text/javascript" src="static/dist/nudged.js"></script>
+    <script type="text/javascript" src="static/dist/pouchdb.min.js"></script>
+    <script type="text/javascript" src="static/vatic.js"></script>
+    <script type="text/javascript" src="static/dist/jquery-1.12.4.js"></script>
+    <script type="text/javascript" src="static/dist/jquery-ui.js"></script>
+  </body>
+</html>
