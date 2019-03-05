@@ -1,5 +1,6 @@
 <template></template>
 <script>
+var slider;
 export default {
   data: function() {
     return {
@@ -8,6 +9,11 @@ export default {
       isReady: false,
       timeout: null
     };
+  },
+  mounted() {
+    slider = this.$parent.$children.filter(function(x, index) {
+      return x.$refs.slider !== undefined;
+    });
   },
   methods: {
     initialize: function() {
@@ -138,8 +144,8 @@ export default {
                 annotatedObject.dom.style.left = annotatedFrame.bbox.x + "px";
                 annotatedObject.dom.style.top = annotatedFrame.bbox.y + "px";
               } else {
-                annotatedObject.dom.style.display = "none";
-                annotatedObject.visible.prop("checked", false);
+                // annotatedObject.dom.style.display = "none";
+                // annotatedObject.visible.prop("checked", false);
               }
             }
 
@@ -156,7 +162,7 @@ export default {
               }
             }
 
-            this.$parent.$refs.slider.setPosition(this.currentFrame);
+            slider[0].setPosition(this.currentFrame);
 
             resolve();
           });

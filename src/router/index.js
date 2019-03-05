@@ -2,9 +2,10 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import labelProgram from '@/components/labelProgram'
 import login from '@/components/login'
-import vedioProgram from '@/components/vedioProgram'
-import originVedio from '@/components/originVedio'
-import text from '@/components/text'
+import HelloWorld from '@/components/HelloWorld'
+import init from '@/components/init'
+import playlist from '@/components/playlist'
+import mainpage from '@/components/mainpage'
 
 Vue.use(Router)
 
@@ -21,38 +22,28 @@ export default new Router({
       component: labelProgram
     },
     {
-      path: '/vedioProgram',
-      name: 'vedioProgram',
-      component: vedioProgram
+      path: '/init',
+      name: 'init',
+      component: init
     },
     {
-      path: '/originVedio',
-      name: 'originVedio',
-      component: originVedio
+      path: '/playlist',
+      name: 'playlist',
+      component: playlist,
     },
     {
-      path: '/text',
-      name: 'text',
-      component: text
+      path: '/mainpage',
+      name: 'mainpage',
+      component: mainpage
+    },
+    {
+      path: '/HelloWorld',
+      name: 'HelloWorld',
+      component: HelloWorld
+    },
+    {
+      path: '*',
+      component: login,
     }
-    // {
-    //   path: '*',
-    //   component: login,
-    // }
-
-    // {
-    //   path: '/',
-    //   name: 'login',
-    //   component: login,
-    //   meta: {
-    //     requiredLogin: true
-    //   },
-    //   children: [
-    //     {
-    //       path: 'labelProgram',
-    //       component: labelProgram
-    //     }
-    //   ]
-    // }
   ]
 })

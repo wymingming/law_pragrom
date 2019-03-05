@@ -1,21 +1,19 @@
  <template>
   <el-container style="margin:5px 5px 5px 5px;border: 1px solid #eee;">
-    <el-tabs type="border-card" style="width:300px;display:table-cell;">
+    <el-tabs stretch type="border-card" style="width:300px;display:table-cell;">
       <el-tab-pane label="未标注">
         <el-col>
           <el-menu class="el-menu-vertical-demo">
-            <el-menu-item v-for="file in framesFile" :key="file" @click.native="chooseFrameFile(file)">{{file.name}}</el-menu-item>
+            <el-menu-item v-for="file in framesFile" :key="file.id" @click.native="chooseFrameFile(file)" :index="generateName('', file.id)">{{file.name}}</el-menu-item>
           </el-menu>
+          <el-pagination style="text-align: center;"
+            @current-change="paginationChange"
+            small
+            layout="prev, pager, next"
+            :total="pageNum"
+            :page-size="10"
+          ></el-pagination>
         </el-col>
-        <!-- <el-table
-          stripe
-          highlight-current-row
-          :data="framesFile"
-          style="width: 100%"
-          @current-change="chooseFrameFile"
-        >
-          <el-table-column prop="name"></el-table-column>
-        </el-table> -->
       </el-tab-pane>
       <el-tab-pane label="已标注"></el-tab-pane>
     </el-tabs>
@@ -30,74 +28,71 @@
         <span>姓名</span>
       </el-header>
       <el-main>
-        <div id="player" style="margin-left:20px;">
-          <!-- <p>
-            XML
-            <input
-              type="file"
-              id="xmlFile"
-              ref="xmlFile"
-              accept=".xml"
-              disabled="true"
-              v-on:change="importXml"
-            >
-          </p>-->
-          <h4>{{ this.activeFile.name }}</h4>
-          <div class="describe">{{ this.activeFile.describe }}</div>
+        <!-- <p>
+          XML
+          <input
+            type="file"
+            id="xmlFile"
+            ref="xmlFile"
+            accept=".xml"
+            disabled="true"
+            v-on:change="importXml"
+          >
+        </p>-->
+        <h3>{{ this.activeFile.name }}</h3>
+        <div class="describe">{{ this.activeFile.describe }}</div>
 
-          <div id="doodle" ref="doodle" @mousemove="doodleMousemove" @click="doodleClick">
-            <canvas id="canvas" ref="canvas"></canvas>
-          </div>
-
-          <br>
-          <player ref="player"></player>
-          <slider ref="slider"></slider>
-          <br>
-          <div style="display: inline;">
-            <p style="display: inline;">播放倍率：
+        <div id="doodle" ref="doodle" @mousemove="doodleMousemove" @click="doodleClick">
+          <canvas id="canvas" ref="canvas"></canvas>
+        </div>
+        <player ref="player"></player>
+        <slider ref="slider"></slider>
+        <el-row :gutter="10">
+          <el-col :span="3" style="margin-top: 10px;">
+            <el-button id="play" type="primary" round @click="playClicked">播放</el-button>
+            <el-button id="pause" type="primary" round @click="pauseClicked" style="display:none; margin-left: 0px;">暂停</el-button>
+          </el-col>
+          <el-col :span="4">
+            <p>播放倍率：
               <el-input type="number" id="speed" v-model="speed" value=1 min=1 max=10 style="width: 80px;" size="small"></el-input>
             </p>
-            <p style="display: inline; margin-left: 30px;">快进/退帧数：
+          </el-col>
+          <el-col :span="4">
+            <p>快进/退帧数：
               <el-input type="number" id="framesNum" v-model="framesNum" value=1 min=1 max=10 style="width: 80px;" size="small"></el-input>
             </p>
+          </el-col>
+        </el-row>
+        <el-card>
+          <div slot="header" class="clearfix">
+            <span style="font-weight:bold;font-size:18px">标签栏</span><span> （按“n”以新建标签）</span>
+            <el-button style="float: right;" type="primary" @click="submit" size="mini">提交</el-button>
           </div>
-          <br>
-          <p style="margin-top: 10px;">
-            <el-button id="play" type="primary" round @click="playClicked">播放</el-button>
-            <el-button
-              id="pause"
-              type="primary"
-              round
-              @click="pauseClicked"
-              style="display:none;"
-            >暂停</el-button>
-          </p>
-          <p>按 “n” 以新建标记框</p>
           <div id="objects">
-            <el-card class="box-card" shadow="hover" v-for="i in tagCards" :key="i">
-              <div slot="header" class="clearfix">
-                <span>标签{{i}}</span>
-                <el-button
-                  style="float: right; padding: 3px 0"
-                  type="text"
-                  @click="tagCardDelete"
-                >删除</el-button>
-              </div>
-              <p v-for="o in behaviorNum" :key="o">
-                <input
-                  type="checkbox"
-                  :name="generateName('behavior', o)"
-                  :value="generateName('behavior', o)"
-                >
-                异常行为{{o}}
-              </p>
-            </el-card>
+            <el-row :gutter="10">
+              <el-col :span="4" v-for="(tag, i) in tagCards" :key="tag.name">
+                <el-card shadow="hover">
+                  <div slot="header" class="clearfix">
+                    <span>标签{{i}}</span>
+                    <el-button
+                      style="float: right; padding: 3px 0"
+                      type="text"
+                      @click="tagCardDelete(tag)"
+                    >删除</el-button>
+                  </div>
+                  <p v-for="o in behaviorNum" :key="o">
+                    <input
+                      type="checkbox"
+                      :name="generateName('behavior', o)"
+                      :value="generateName('behavior', o)"
+                    >
+                    异常行为{{o}}
+                  </p>
+                </el-card>
+              </el-col>
+            </el-row>
           </div>
-          <hr>
-          <p>
-            <el-button id="submit" type="primary" round disabled @click="submit">提交</el-button>
-          </p>
-        </div>
+        </el-card>
       </el-main>
     </el-container>
   </el-container>
@@ -105,9 +100,6 @@
 
 <script>
 import "jquery";
-import "../../static/dist/jquery-1.12.4";
-import "../../static/dist/jquery-ui";
-import "../../static/dist/StreamSaver";
 import jquery from "jquery";
 import player from "./player";
 import slider from "./slider";
@@ -142,11 +134,16 @@ export default {
       },
       tmpAnnotatedObject: {},
       framesFile: [], // 文件集
+      pageNum: 0, //文件分页数
+      framesFileTotal: 0, // 文件总数
       activeFile: {}, // 当前展示的文件
       speed: 1, // 播放速度
       framesNum: 1, // 快进/退帧数
-      tagCards: 0, // 标签个数
-      behaviorNum: 5 // 异常行为数量
+      behaviorNum: 5, // 异常行为数量
+      // framesManager: new FramesManager(),
+      // annotatedObjectsTracker: new AnnotatedObjectsTracker(this.framesManager),
+      tagCardIndex: 0, // 标签序号
+      tagCards: []   // 标签数组
     };
   },
   mounted() {
@@ -161,13 +158,13 @@ export default {
     this.$http
       .get("http://192.168.1.120:9090/annotation/clips/find", {
         headers: { "Content-Type": "application/json" },
-        params: { currentPage: 1 }
+        params: { currentPage: 1, pageSize: 10, tagged: 0 }
       })
       .then(res => {
-        vueThis.framesFile = res.body.result.records;
+        this.framesFile = res.body.result.records;
       })
-      .catch(function(data) {
-          this.$message.error("list error!");
+      .catch(function() {
+        this.$message.error("list error!");
       });
 
     this.$refs.slider.reset();
@@ -227,6 +224,22 @@ export default {
     generateName: function(name, index) {
       return name + index;
     },
+    
+    paginationChange(val) {
+      this.$http.get('http://192.168.1.120:9090/annotation/clips/find',{
+        params: {
+          currentPage: val,
+          pageSize: 10, 
+          tagged: 0
+        }
+      }).then(
+        response => {
+          this.framesFile = response.body.result.records;
+        }
+      ).catch(function() {
+          this.$message.error("list error!");
+      });
+    },
 
     chooseFrameFile: function(file) {
       if (
@@ -234,8 +247,7 @@ export default {
         (annotatedObjectsTracker.annotatedObjects.length > 0 && // 标签数大于0
         !this.labelSubmitted && // && （修改后）未提交
           confirm("标签未提交或已增减，是否停止切换文件？")) // && 用户停止
-      )
-        return;
+      ) return;
       this.clearAllAnnotatedObjects();
       let playerComponent = this.$refs.player;
       playerComponent.initialize();
@@ -292,8 +304,9 @@ export default {
 
     clearAllAnnotatedObjects: function() {
       while (annotatedObjectsTracker.annotatedObjects.length > 0) {
-        this.clearAnnotatedObject();
+        this.clearAnnotatedObject(0);
       }
+      this.tagCards = [];
     },
 
     initializeCanvasDimensions: function(img) {
@@ -494,37 +507,34 @@ export default {
 
       div.append(del);
 
-      // tagCard.append(tagHead);
-      // tagCard.append(div);
-
-      annotatedObject.controls = div;
-      $("#objects").append(div);
+      // annotatedObject.controls = div;
+      // $("#objects").append(div);
     },
 
-    tagCardDelete: function() {
+    tagCardDelete: function(tag) {
+      let tagCards = this.tagCards;
       for (
         let i = 0;
         i < annotatedObjectsTracker.annotatedObjects.length;
         i++
       ) {
-        if (annotatedObject === annotatedObjectsTracker.annotatedObjects[i]) {
+        if (tag.annotatedObject === annotatedObjectsTracker.annotatedObjects[i]) {
           this.clearAnnotatedObject(i);
           this.labelSubmitted = false;
           break;
         }
       }
-      this.tagCards--;
+      this.tagCards = tagCards.filter(t => t.name !== tag.name);
     },
 
-    clearAnnotatedObject: function() {
-      let annotatedObject = annotatedObjectsTracker.annotatedObjects[0];
-      annotatedObject.controls.remove();
-      $(annotatedObject.dom).remove();
-      annotatedObjectsTracker.annotatedObjects.splice(0, 1);
+    clearAnnotatedObject: function(i) {
+      let annotatedObject = annotatedObjectsTracker.annotatedObjects;
+      // annotatedObject[i].controls.remove();
+      $(annotatedObject[i].dom).remove();
+      annotatedObject.splice(i, 1);
     },
 
     playClicked: function() {
-      document.getElementById("submit").disabled = false;
       this.$refs.player.play(
         this.config,
         framesManager,
@@ -682,6 +692,13 @@ export default {
     },
 
     submit: function() {
+      if(this.tagCards.length <= 0) {
+        this.$message({
+          message: '请按"n"进行标注后再提交。',
+          type: 'warning'
+        });
+        return;
+      }
       //这个方法取到了所有bbox的id会读取到所有的内容需要换一个name或者换一个方式
       let div_boxs = document.getElementById("objects");
       let xml = "<bboxs>";
@@ -712,11 +729,14 @@ export default {
         this.$http
           .post("http://192.168.1.120:9090/annotation/clips/tag", {
             headers: { "Content-Type": "application/json" },
-            params: JSON.stringify(tagJSON),
+            params: {id: this.activeFile.id, tag: JSON.stringify(tagJSON)},
             emulateJSON: true
           })
           .then(res => {
-            this.$message("提交成功。");
+            this.$message({
+              message: "提交成功。",
+              type: 'success'
+            });
             this.labelSubmitted = true;
           })
           .catch(res => {
@@ -840,7 +860,8 @@ export default {
 
         this.$refs.doodle.style.cursor = "default";
 
-        this.tagCards++;
+        this.tagCardIndex ++;
+        this.tagCards.push({name: this.generateName('tagCard_', this.tagCardIndex), annotatedObject: annotatedObject});
       } else {
         this.mouse.startX = this.mouse.x;
         this.mouse.startY = this.mouse.y;
@@ -1010,10 +1031,6 @@ export default {
 }
 .clearfix:after {
   clear: both;
-}
-
-.box-card {
-  width: 300px;
 }
 
 .el-header {

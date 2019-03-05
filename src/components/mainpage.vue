@@ -62,10 +62,15 @@
 			this.total = response.body.result.total;
 			//console.log(url);
 		},(response) => {
-			this.$message.error("获得视频列表失败");
+			alert("获得视频列表失败");
 		});
 	},
     methods: {
+    dropdownCommand: function(command){
+      if(command === 'logout'){
+        this.$message('logout');
+      }
+    },
       handleDelete(index,id) {
         //console.log(id);
 		this.$http.delete(`http://192.168.1.120:9090/annotation/originVideo/delete?ids=${id}`).then((response) => {
@@ -73,7 +78,7 @@
 			this.urls.splice(index,1);
 			//console.log(url);
 		},(response) => {
-			this.$message.error("删除失败");
+			alert("删除失败");
 		});
 		
       },
@@ -85,18 +90,10 @@
 	  		this.urls = url;
 	  		//console.log(url);
 	  	},(response) => {
-	  		this.$message.error("获得视频列表失败");
+	  		alert("获得视频列表失败");
 	  	});
 	  	//console.log(`http://192.168.1.120:9090/annotation/video/find?currentPage=${val}&pageSize=6`);
 	  },
     }
   }
 </script>
-<style>
-.el-header {
-  /* background-color: #B3C0D1; */
-  background-color: #409EFF;
-  color: #333;
-  line-height: 40px;
-}
-</style>
