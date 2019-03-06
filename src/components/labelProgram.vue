@@ -1,21 +1,34 @@
  <template>
   <el-container style="margin:5px 5px 5px 5px;border: 1px solid #eee;">
-    <el-tabs stretch type="border-card" style="width:300px;display:table-cell;">
-      <el-tab-pane label="未标注">
+    <el-tabs stretch v-model="activeTab" type="border-card" style="width:300px;display:table-cell;" @tab-click="tabChange">
+      <el-tab-pane label="未标注" name="untagged">
         <el-col>
           <el-menu class="el-menu-vertical-demo">
-            <el-menu-item v-for="file in framesFile" :key="file.id" @click.native="chooseFrameFile(file)" :index="generateName('', file.id)">{{file.name}}</el-menu-item>
+            <el-menu-item v-for="file in framesFile" :key="file.id" @click.native="chooseFrameFile(file)" :index="generateName('untagged_', file.id)">{{file.name}}</el-menu-item>
           </el-menu>
-          <el-pagination style="text-align: center;"
-            @current-change="paginationChange"
+          <el-pagination style="text-align: center; margin-top: 10px;"
+            @current-change="untaggedPaginationChange"
             small
             layout="prev, pager, next"
-            :total="pageNum"
+            :total="filesNum"
             :page-size="10"
           ></el-pagination>
         </el-col>
       </el-tab-pane>
-      <el-tab-pane label="已标注"></el-tab-pane>
+      <el-tab-pane label="已标注" name="tagged">
+        <el-col>
+          <el-menu class="el-menu-vertical-demo">
+            <el-menu-item v-for="file in framesFile" :key="file.id" @click.native="chooseFrameFile(file)" :index="generateName('tagged_', file.id)">{{file.name}}</el-menu-item>
+          </el-menu>
+          <el-pagination style="text-align: center; margin-top: 10px;"
+            @current-change="taggedPaginationChange"
+            small
+            layout="prev, pager, next"
+            :total="filesNum"
+            :page-size="10"
+          ></el-pagination>
+        </el-col>
+      </el-tab-pane>
     </el-tabs>
     <el-container>
       <el-header style="text-align: right; font-size: 14px;height: 40px">
@@ -41,7 +54,6 @@
         </p>-->
         <h3>{{ this.activeFile.name }}</h3>
         <div class="describe">{{ this.activeFile.describe }}</div>
-
         <div id="doodle" ref="doodle" @mousemove="doodleMousemove" @click="doodleClick">
           <canvas id="canvas" ref="canvas"></canvas>
         </div>
@@ -71,7 +83,7 @@
           <div id="objects">
             <el-row :gutter="10">
               <el-col :span="4" v-for="(tag, i) in tagCards" :key="tag.name">
-                <el-card shadow="hover">
+                <el-card shadow="hover" :id="tag.name">
                   <div slot="header" class="clearfix">
                     <span>标签{{i}}</span>
                     <el-button
@@ -123,9 +135,7 @@ export default {
         // Name of the extracted frames zip archive
         framesZipFilename: "extracted-frames.zip"
       },
-      label_xml: "",
-      // 标签是否提交
-      labelSubmitted: false,
+      labelSubmitted: false,  // 标签是否提交
       mouse: {
         x: 0,
         y: 0,
@@ -133,17 +143,16 @@ export default {
         startY: 0
       },
       tmpAnnotatedObject: {},
-      framesFile: [], // 文件集
-      pageNum: 0, //文件分页数
-      framesFileTotal: 0, // 文件总数
-      activeFile: {}, // 当前展示的文件
-      speed: 1, // 播放速度
-      framesNum: 1, // 快进/退帧数
-      behaviorNum: 5, // 异常行为数量
-      // framesManager: new FramesManager(),
-      // annotatedObjectsTracker: new AnnotatedObjectsTracker(this.framesManager),
-      tagCardIndex: 0, // 标签序号
-      tagCards: []   // 标签数组
+      framesFile: [],         // 文件集
+      filesNum: 0,            // 文件总数
+      framesFileTotal: 0,     // 文件总数
+      activeFile: {},         // 当前展示的文件
+      speed: 1,               // 播放速度
+      framesNum: 1,           // 快进/退帧数
+      behaviorNum: 5,         // 异常行为数量
+      tagCardIndex: 0,        // 标签序号
+      tagCards: [],           // 标签数组
+      activeTab: "untagged"   // 当前展示的tab
     };
   },
   mounted() {
@@ -152,22 +161,11 @@ export default {
     //     return;
     //   }
     // });
-    var vueThis = this;
 
     // 请求后台数据
-    this.$http
-      .get("http://192.168.1.120:9090/annotation/clips/find", {
-        headers: { "Content-Type": "application/json" },
-        params: { currentPage: 1, pageSize: 10, tagged: 0 }
-      })
-      .then(res => {
-        this.framesFile = res.body.result.records;
-      })
-      .catch(function() {
-        this.$message.error("list error!");
-      });
-
+    this.clipsFind(1, 0);
     this.$refs.slider.reset();
+    var vueThis = this;
     window.onkeydown = function(e) {
       let preventDefault = true;
       let framesNum = parseInt(vueThis.framesNum);
@@ -224,16 +222,33 @@ export default {
     generateName: function(name, index) {
       return name + index;
     },
+
+    tabChange: function(tab){
+      let tagged = 0;
+      if(tab.name === 'tagged'){
+        tagged = 2;
+      }
+      this.clipsFind(1, tagged);
+    },
     
-    paginationChange(val) {
+    untaggedPaginationChange(val) {
+      this.clipsFind(val, 0);
+    },
+
+    taggedPaginationChange(val) {
+      this.clipsFind(val, 2);
+    },
+
+    clipsFind: function(val, tagged){
       this.$http.get('http://192.168.1.120:9090/annotation/clips/find',{
         params: {
           currentPage: val,
           pageSize: 10, 
-          tagged: 0
+          tagged: tagged
         }
       }).then(
         response => {
+          this.filesNum = response.body.result.total;
           this.framesFile = response.body.result.records;
         }
       ).catch(function() {
@@ -255,10 +270,7 @@ export default {
       this.activeFile = file;
       var vueThis = this;
       new JSZip.external.Promise(function(resolve, reject) {
-        JSZipUtils.getBinaryContent("http://" + file.address, function(
-          err,
-          data
-        ) {
+        JSZipUtils.getBinaryContent("http://" + file.address, function(err, data) {
           if (err) {
             reject(err);
           } else {
@@ -297,8 +309,8 @@ export default {
             }
           });
         })
-        .catch(function(data) {
-          vueThis.$message.error('file error!');
+        .catch(function(err) {
+          vueThis.$message.error('failed to read the file.');
         });
     },
 
@@ -413,21 +425,6 @@ export default {
     },
 
     addAnnotatedObjectControls: function(annotatedObject) {
-      let name = $('<input type="text" value="Name" />');
-      if (annotatedObject.name) {
-        name.val(annotatedObject.name);
-      }
-      name.on("change keyup paste mouseup", function() {
-        annotatedObject.name = this.value;
-      });
-      //设置bbox的id
-      let id = $('<input type="text" value="ID" />');
-      if (annotatedObject.id) {
-        id.val(annotatedObject.id);
-      }
-      id.on("change keyup paste mouseup", function() {
-        annotatedObject.id = this.value;
-      });
       let bbox;
       let jquery = $(annotatedObject.dom);
       let position = jquery.position();
@@ -441,74 +438,21 @@ export default {
         new AnnotatedFrame(this.$refs.player.currentFrame, bbox, true)
       );
 
-      let del = $('<input type="button" value="Delete" />');
-      let vueThis = this;
-      del.click(function() {
-        for (
-          let i = 0;
-          i < annotatedObjectsTracker.annotatedObjects.length;
-          i++
-        ) {
-          if (annotatedObject === annotatedObjectsTracker.annotatedObjects[i]) {
-            vueThis.clearAnnotatedObject(i);
-            vueThis.labelSubmitted = false;
-            break;
-          }
-        }
-      });
-      let div = $("<div></div>");
-
-      let checkboxHtml = "";
-      for (let i = 1; i <= this.behaviorNum; i++) {
-        checkboxHtml +=
-          '<p><input type="checkbox" name="behavior' +
-          i +
-          '" value="behavior' +
-          i +
-          '"/>异常行为' +
-          i +
-          "</p>";
-      }
-      let checkbox = $(checkboxHtml);
-
-      //读取xml增加框
-      for (
-        let i = 0;
-        i < annotatedObjectsTracker.annotatedObjects.length;
-        i++
-      ) {
-        div.attr("id", "bbox" + String(i));
-      }
-      div.css({
-        border: "1px solid black",
-        display: "inline-block",
-        margin: "5px",
-        padding: "10px"
-      });
-      div.append(name);
-      div.append($("<br />"));
-      div.append(id);
-      div.append($("<br />"));
-      div.append(checkbox);
-
-      let input_t = checkbox.children("input");
-      for (let i = 0; i < input_t.length; i++) {
-        if (annotatedObject.labels) {
-          //   12.3 新增 wym
+      window.setTimeout(function(){
+        let input_t = $("#" + annotatedObject.id).find("input");
+        for (let i = 0; i < input_t.length; i++) {
           let labels = annotatedObject.labels;
-          for (let j = 0; j < labels.length; j++) {
-            if ($(labels[j]).text() == input_t.eq(i).attr("name")) {
-              input_t.eq(i).attr("checked", true);
-              break;
+          if (labels) {
+            //   12.3 新增 wym
+            for (let j = 0; j < labels.length; j++) {
+              if (labels[j] === input_t.eq(i).attr("name")) {
+                input_t.eq(i).attr("checked", true);
+                break;
+              }
             }
           }
         }
-      }
-
-      div.append(del);
-
-      // annotatedObject.controls = div;
-      // $("#objects").append(div);
+      }, 300);
     },
 
     tagCardDelete: function(tag) {
@@ -529,7 +473,6 @@ export default {
 
     clearAnnotatedObject: function(i) {
       let annotatedObject = annotatedObjectsTracker.annotatedObjects;
-      // annotatedObject[i].controls.remove();
       $(annotatedObject[i].dom).remove();
       annotatedObject.splice(i, 1);
     },
@@ -548,57 +491,23 @@ export default {
 
     generateJSON: function() {
       let tagJSON = {};
-      let xml = '<?xml version="1.0" encoding="utf-8"?>\n';
-      xml += "<annotation>\n";
-      xml += "  <folder>not available</folder>\n";
-      xml += "  <filename>not available</filename>\n";
-      xml += "  <source>\n";
-      xml += "    <type>video</type>\n";
-      xml += "    <sourceImage>vatic frames</sourceImage>\n";
-      xml += "    <sourceAnnotation>vatic</sourceAnnotation>\n";
-      xml += "  </source>\n";
-
       tagJSON.objects = [];
       for (
         let i = 0;
         i < annotatedObjectsTracker.annotatedObjects.length;
         i++
       ) {
-        let tempObject = {};
         let annotatedObject = annotatedObjectsTracker.annotatedObjects[i];
-
-        xml += "  <object>\n";
-        xml += "    <name>" + annotatedObject.name + "</name>\n";
-        tempObject.name = annotatedObject.name;
-        xml += "    <moving>true</moving>\n";
-        xml += "    <action/>\n";
-        xml += "    <verified>0</verified>\n";
-        xml += "    <id>" + annotatedObject.id + "</id>\n";
-        tempObject.id = annotatedObject.id;
-        xml += "    <bbox>\n";
-        tempObject.labels = [];
-        let label_xml = $.parseXML(this.label_xml);
-        $(label_xml)
-          .find("bbox")
-          .each(function(i) {
-            if ($(this).attr("id") == annotatedObject.id) {
-              let checkboxs = $(this).find("checkbox");
-              if (checkboxs) {
-                for (let a = 0; a < checkboxs.length; a++) {
-                  xml +=
-                    "        <label>" + checkboxs.eq(a).text() + "</label>\n";
-                  tempObject.labels.push(checkboxs.eq(a).text());
-                }
-              }
-            }
-          });
-        xml += "    </bbox>\n";
-        xml += "    <createdFrame>0</createdFrame>\n";
-        xml += "    <startFrame>0</startFrame>\n";
+        let tempObject = {id: annotatedObject.id, labels: [], polygons: []};
+        let input_checkboxs = $("#" + tempObject.id).find("input[type='checkbox']");
+        for (let j = 0; j < input_checkboxs.length; j++) {
+          //每个框里面的内容
+          let ischecked = input_checkboxs[j]; //拿到每个框的checkbox
+          if (ischecked.checked) {
+            tempObject.labels.push(ischecked.name);
+          }
+        }
         let totalFrames = framesManager.frames.totalFrames();
-        xml += "    <endFrame>" + (totalFrames - 1) + "</endFrame>\n";
-
-        tempObject.polygons = [];
         for (let frameNumber = 0; frameNumber < totalFrames; frameNumber++) {
           let annotatedFrame = annotatedObject.get(frameNumber);
           if (annotatedFrame == null) {
@@ -607,11 +516,9 @@ export default {
             );
             return;
           }
-
           let bbox = annotatedFrame.bbox;
           if (bbox != null) {
             let isGroundThrugh = annotatedFrame.isGroundTruth ? 1 : 0;
-
             let tempPolygon = {};
             tempPolygon.t = frameNumber;
             tempPolygon.pt = [
@@ -637,57 +544,10 @@ export default {
               }
             ];
             tempObject.polygons.push(tempPolygon);
-
-            xml += "    ";
-            xml += "<polygon>";
-            xml += "<t>" + frameNumber + "</t>";
-            xml +=
-              "<pt><x>" +
-              bbox.x +
-              "</x><y>" +
-              bbox.y +
-              "</y><l>" +
-              isGroundThrugh +
-              "</l></pt>";
-
-            xml +=
-              "<pt><x>" +
-              bbox.x +
-              "</x><y>" +
-              (bbox.y + bbox.height) +
-              "</y><l>" +
-              isGroundThrugh +
-              "</l></pt>";
-            xml +=
-              "<pt><x>" +
-              (bbox.x + bbox.width) +
-              "</x><y>" +
-              (bbox.y + bbox.height) +
-              "</y><l>" +
-              isGroundThrugh +
-              "</l></pt>";
-            xml +=
-              "<pt><x>" +
-              (bbox.x + bbox.width) +
-              "</x><y>" +
-              bbox.y +
-              "</y><l>" +
-              isGroundThrugh +
-              "</l></pt>";
-            xml += "</polygon>\n";
           }
         }
-
-        xml += "  </object>\n";
         tagJSON.objects.push(tempObject);
       }
-      xml += "</annotation>\n";
-
-      // let writeStream = streamSaver.createWriteStream("output.xml").getWriter();
-      // let encoder = new TextEncoder();
-      // writeStream.write(encoder.encode(xml));
-      // writeStream.close();
-
       return tagJSON;
     },
 
@@ -699,49 +559,22 @@ export default {
         });
         return;
       }
-      //这个方法取到了所有bbox的id会读取到所有的内容需要换一个name或者换一个方式
-      let div_boxs = document.getElementById("objects");
-      let xml = "<bboxs>";
-      for (let i = 0; i < div_boxs.children.length; i++) {
-        //针对框循环
-        let componentId = $(div_boxs)
-          .find('input[value="ID"]')
-          .val();
-        xml += "  <bbox  " + 'id="' + componentId + '">\n';
-        let i_div = $("#bbox" + i);
-        let input_checkboxs = i_div.find("input[type='checkbox']");
-
-        for (let j = 0; j < input_checkboxs.length; j++) {
-          //每个框里面的内容
-          let ischecked = input_checkboxs[j]; //拿到每个框的checkbox
-          if (ischecked.checked) {
-            xml += "    <checkbox>" + ischecked.name + "</checkbox>\n";
-          }
-        }
-        xml += "  </bbox>\n";
-      }
-      xml += "</bboxs>";
-      this.label_xml = xml;
 
       let tagJSON = this.generateJSON();
+      if(tagJSON === null || tagJSON === undefined) return;
 
-      return new Promise((resolve, reject) => {
-        this.$http
-          .post("http://192.168.1.120:9090/annotation/clips/tag", {
-            headers: { "Content-Type": "application/json" },
-            params: {id: this.activeFile.id, tag: JSON.stringify(tagJSON)},
-            emulateJSON: true
-          })
-          .then(res => {
-            this.$message({
-              message: "提交成功。",
-              type: 'success'
-            });
-            this.labelSubmitted = true;
-          })
-          .catch(res => {
-            this.$message.error("提交失败。");
-          });
+      this.$http.post("http://192.168.1.120:9090/annotation/clips/tag", 
+        JSON.stringify({id: this.activeFile.id, tag: "'" + JSON.stringify(tagJSON) + "'"})
+      ,{emulateJSON: true})
+      .then(res => {
+        this.$message({
+          message: "提交成功。",
+          type: 'success'
+        });
+        this.labelSubmitted = true;
+      })
+      .catch(res => {
+        this.$message.error("提交失败。");
       });
     },
 
@@ -856,12 +689,14 @@ export default {
           );
         });
 
+        this.tagCardIndex ++;
+        let tagCardName = this.generateName('tagCard_', this.tagCardIndex);
+        annotatedObject.id = tagCardName;
+        this.tagCards.push({name: tagCardName, annotatedObject: annotatedObject});
+
         this.addAnnotatedObjectControls(annotatedObject);
 
         this.$refs.doodle.style.cursor = "default";
-
-        this.tagCardIndex ++;
-        this.tagCards.push({name: this.generateName('tagCard_', this.tagCardIndex), annotatedObject: annotatedObject});
       } else {
         this.mouse.startX = this.mouse.x;
         this.mouse.startY = this.mouse.y;

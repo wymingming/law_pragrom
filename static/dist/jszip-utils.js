@@ -71,8 +71,8 @@ JSZipUtils.getBinaryContent = function(path, callback) {
         xhr.open('GET', path, true);
 
         xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-        xhr.setRequestHeader("Access-Control-Allow-Methods", "GET");
-        xhr.setRequestHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
+        // xhr.setRequestHeader("Access-Control-Allow-Methods", "GET");
+        // xhr.setRequestHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
 
         if ("responseType" in xhr) {
             xhr.responseType = "arraybuffer";
